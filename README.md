@@ -15,15 +15,15 @@
 1. 09/10/2018: Input file wrapper finished.
 
 ## Author: 
-1. Zhaoxin Liang @ University of Minnesota - Twin Cities, VLSI - EDA group. (current author, zxliang@umn.edu)
-2. Kishor Kunal (original author, kunal001@umn.edu)
+1. Zhaoxin Liang @ University of Minnesota - Twin Cities, [VLSI - EDA group](http://people.ece.umn.edu/users/sachin/). (current author, zxliang@umn.edu)
+2. Kishor Kunal. (original author, kunal001@umn.edu)
 
 ## Version: 
 2.0 (Previous to Sep. 01, 2018)
 
 ## License:
 License TBD
-Copyright &copy 2018 [Zhaoxin Liang](https://github.com/zxliang)
+Copyright &copy; 2018 [Zhaoxin Liang](https://github.com/zxliang)
 
 ----------------------
 
