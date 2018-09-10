@@ -2,6 +2,6 @@
 
 int main(int argc, char* argv[]) {
   parser myParser;
-  cout << "myParser created!" << endl;
+  myParser.getFileHandler(argc, argv);
   return 0;
 }

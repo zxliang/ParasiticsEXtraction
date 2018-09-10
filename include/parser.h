@@ -8,6 +8,7 @@ class parser {
 public:
   parser();
   ~parser();
+  int getFileHandler(int argc, char* argv[]);
 };
 
 #endif // PARSER_H
