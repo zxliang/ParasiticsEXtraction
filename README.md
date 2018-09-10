@@ -22,7 +22,7 @@
 2.0 (Previous to Sep. 01, 2018)
 
 ## License:
-License TBD
+License TBD \
 Copyright &copy; 2018 [Zhaoxin Liang](https://github.com/zxliang)
 
 ----------------------
