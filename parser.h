@@ -5,11 +5,9 @@
 using namespace std;
 
 class parser {
-  string defFileName;
-  string spefFileName;
-  string outputFileName;
 public:
-  parser(int argc, char* argv[]);
+  parser();
+  ~parser();
 };
 
 #endif // PARSER_H
