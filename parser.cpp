@@ -1,4 +1,4 @@
-#inlcude "parser.h"
+#include "parser.h"
 
 parser::parser() {
   cout << "Default constructor called. Waiting further file initialization..." << endl;
