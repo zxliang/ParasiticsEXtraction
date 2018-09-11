@@ -7,21 +7,22 @@
 
 using namespace std;
 
-class parser {
+class Parser {
+  bool isFileHandlerReady;
   string defFileName;
   ifstream defHandler;
   string spefFileName;
   ifstream spefHandler;
   string outputFileName;
   ofstream outputHandler;
-  vector<segment> nets;
+  vector<Segment> nets;
 public:
-  parser();
-  parser(int argc, char* argv[]);
-  ~parser();
+  Parser();
+  Parser(int argc, char* argv[]);
+  ~Parser();
 
   int getFileHandler(int argc, char* argv[]);
-
+  int readDefFile();
 
   void displayFileInfo();
 };

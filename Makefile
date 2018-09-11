@@ -3,7 +3,7 @@ CFLAGS	:= -std=c++11
 
 INC	:= -I ./include
 
-TARGET	:= parser
+TARGET	:= ./bin/myParser
 
 all:	main.o parser.o $(TARGET)
 #	@echo $(TARGET)

@@ -4,10 +4,10 @@
 
 using namespace std;
 
-class segment {
+class Segment {
 public:
   string layer;
-  segment(string layer);
+  Segment(string layer);
 };
 
 #endif // SEGMENT_H

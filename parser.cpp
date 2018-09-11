@@ -1,18 +1,17 @@
 #include "parser.h"
 
-parser::parser() {
+Parser::Parser() {
   cout << "Default constructor called. " << endl;
   cout << "Waiting further file initialization...\n " << endl;
+  isFileHandlerReady = false;
 }
 
-//void parser::getFileHandler(int agrc, char* argv[]);
-
-parser::parser(int argc, char* argv[]) {
+Parser::Parser(int argc, char* argv[]) {
   cout << "Customized constructor called. " << endl;
   getFileHandler(argc, argv);
 }
 
-parser::~parser() {
+Parser::~Parser() {
   cout << "\nDefault destructor called." << endl;
 
   if (defHandler) {
@@ -32,8 +31,10 @@ parser::~parser() {
   
 }
 
-int parser::getFileHandler(int argc, char* argv[]) {
-//  defFileName = "", spefFileName = "", outputFileName = "nets.csv";
+//
+int Parser::getFileHandler(int argc, char* argv[]) {
+//  defFileName = "", spefFileName = "", outputFileName = "nets.sv";
+  isFileHandlerReady = false;
 
   if (argc<3 || argc>4) {
     cout << "Number of input files is wrong... " << endl;
@@ -68,13 +69,35 @@ int parser::getFileHandler(int argc, char* argv[]) {
   }
   
   cout << "All inputs opened successfully. " << endl;
+  isFileHandlerReady = true;
   // 1 for successful openings, 0 for failure
   return 1;
 }
 
-void parser::displayFileInfo() {
-  cout << endl;
-  cout << "Input .def file: " << defFileName << endl;
-  cout << "Input .spef file: " << spefFileName << endl;
-  cout << "Input output file: " << outputFileName << endl;  
+
+int Parser::readDefFile() {
+  if (!isFileHandlerReady) {
+    cout << "File handlers not ready. Quit reading. " << endl;
+    return 0;  
+  }
+
+  string line;
+  bool isInNETS = false;
+  int counter = 0;
+  while (getline(defHandler, line)) {
+    counter++;
+    if (line.find("NETS") == 0) isInNETS = true, cout << counter << endl;
+    if (line.find("END NETS") == 0) isInNETS = false, cout << counter << endl;
+  }
+  return 1;
+}
+
+// Display names of input/output files 
+void Parser::displayFileInfo() {
+  if (isFileHandlerReady) {
+    cout << "\nInput .def file: " << defFileName << endl;
+    cout << "Input .spef file: " << spefFileName << endl;
+    cout << "Input output file: " << outputFileName << endl;
+  } else 
+    cout << "Fill handler not ready. Check input format/files." << endl;
 }
