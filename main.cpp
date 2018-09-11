@@ -7,10 +7,10 @@ int main(int argc, char* argv[]) {
 //  myParser.getFileHandler(argc, argv);
 
   // An alternative way of initialization:
-  Parser myParser(argc, argv);
+  Parser my_parser(argc, argv);
 
   // Start to read .def file
-  myParser.readDefFile();
+  my_parser.readDefFile();
 
 //  Dump input file information:
 //  myParser.displayFileInfo();

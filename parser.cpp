@@ -3,7 +3,7 @@
 Parser::Parser() {
   cout << "Default constructor called. " << endl;
   cout << "Waiting further file initialization...\n " << endl;
-  isFileHandlerReady = false;
+  is_handler_ready = false;
 }
 
 Parser::Parser(int argc, char* argv[]) {
@@ -14,19 +14,19 @@ Parser::Parser(int argc, char* argv[]) {
 Parser::~Parser() {
   cout << "\nDefault destructor called." << endl;
 
-  if (defHandler) {
+  if (def_handler) {
     cout << "Closing .def file handler. " << endl;
-    defHandler.close();
+    def_handler.close();
   }
 
-  if (spefHandler) {
+  if (spef_handler) {
     cout << "Closing .spef file handler. " << endl;
-    spefHandler.close();
+    spef_handler.close();
   }
 
-  if (outputHandler) {
+  if (output_handler) {
     cout << "Closing output file handler. " << endl;
-    outputHandler.close();
+    output_handler.close();
   }
   
 }
@@ -34,7 +34,7 @@ Parser::~Parser() {
 //
 int Parser::getFileHandler(int argc, char* argv[]) {
 //  defFileName = "", spefFileName = "", outputFileName = "nets.sv";
-  isFileHandlerReady = false;
+  is_handler_ready = false;
 
   if (argc<3 || argc>4) {
     cout << "Number of input files is wrong... " << endl;
@@ -44,60 +44,93 @@ int Parser::getFileHandler(int argc, char* argv[]) {
     return 0;
   }
   
-  defHandler.open(argv[1]);
-  if (!defHandler) {
+  def_handler.open(argv[1]);
+  if (!def_handler) {
     cerr << "Unable to open input .def file: " << argv[1] << endl;
     return 0;
   }
-  defFileName = argv[1];
+  def_filename = argv[1];
 
-  spefHandler.open(argv[2]);
-  if (!spefHandler) {
+  spef_handler.open(argv[2]);
+  if (!spef_handler) {
     cerr << "Unable to open input .spef file: " << argv[2] << endl;
     return 0;
   }
-  defFileName = argv[2];
+  def_filename = argv[2];
 
   if (argc==3) {
     cout << "Output file unspecified, using default name NETS.CSV." << endl;
-    outputHandler.open("nets.csv");
-    outputFileName = "nets.csv";
+    output_handler.open("nets.csv");
+    output_filename = "nets.csv";
   } else if (argc==4) {
     cout << "Output to specified file name " << argv[3] << endl;
-    outputHandler.open(argv[3]);
-    outputFileName = argv[3];
+    output_handler.open(argv[3]);
+    output_filename = argv[3];
   }
   
   cout << "All inputs opened successfully. " << endl;
-  isFileHandlerReady = true;
+  is_handler_ready = true;
   // 1 for successful openings, 0 for failure
   return 1;
 }
 
-
 int Parser::readDefFile() {
-  if (!isFileHandlerReady) {
+  if (!is_handler_ready) {
     cout << "File handlers not ready. Quit reading. " << endl;
     return 0;  
   }
 
   string line;
   bool isInNETS = false;
-  int counter = 0;
-  while (getline(defHandler, line)) {
+  unsigned int counter = 0; // line counter for debugging
+
+  while (getline(def_handler, line)) {
     counter++;
-    if (line.find("NETS") == 0) isInNETS = true, cout << counter << endl;
-    if (line.find("END NETS") == 0) isInNETS = false, cout << counter << endl;
+    // mark start/end of NETS section
+    if (line.find("NETS")==0) isInNETS = true;
+    if (line.find("END NETS")==0) isInNETS = false;
+
+    if (isInNETS && line.find("- ")==0) {
+      string net_name = line.substr(2);
+      vector<Segment> nets;
+
+      string net_line;
+      getline(def_handler, net_line), counter++;
+      // move to the net
+      while (net_line.find("+ ROUTED")==string::npos)
+        getline(def_handler, net_line), counter++;
+        cout << net_name << " " << counter << endl;
+
+      // read valid lines
+      while (net_line.find(";")!=string::npos) {
+        getline(def_handler, net_line), counter++;
+//        cout << " " << net_line << endl;
+
+        matchNetLine(net_line);
+      }
+    }
   }
+
   return 1;
+}
+
+// extracting net segment info based on # of spaces inline
+// ??? better way?
+void Parser::matchNetLine(string net_line) {
+  int num_spaces=0;
+  for (int i=0; i<int(net_line.length()); i++)
+    if (isspace(net_line[i])) num_spaces++;
+                
+  Segment seg((unsigned int)num_spaces);
+  return;
 }
 
 // Display names of input/output files 
 void Parser::displayFileInfo() {
-  if (isFileHandlerReady) {
-    cout << "\nInput .def file: " << defFileName << endl;
-    cout << "Input .spef file: " << spefFileName << endl;
-    cout << "Input output file: " << outputFileName << endl;
+  if (is_handler_ready) {
+    cout << "\nInput .def file: " << def_filename << endl;
+    cout << "Input .spef file: " << spef_filename << endl;
+    cout << "Input output file: " << output_filename << endl;
   } else 
     cout << "Fill handler not ready. Check input format/files." << endl;
 }

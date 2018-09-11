@@ -8,13 +8,13 @@
 using namespace std;
 
 class Parser {
-  bool isFileHandlerReady;
-  string defFileName;
-  ifstream defHandler;
-  string spefFileName;
-  ifstream spefHandler;
-  string outputFileName;
-  ofstream outputHandler;
+  bool is_handler_ready;
+  string def_filename;
+  ifstream def_handler;
+  string spef_filename;
+  ifstream spef_handler;
+  string output_filename;
+  ofstream output_handler;
   vector<Segment> nets;
 public:
   Parser();
@@ -23,6 +23,7 @@ public:
 
   int getFileHandler(int argc, char* argv[]);
   int readDefFile();
+  void matchNetLine(string net_line);
 
   void displayFileInfo();
 };

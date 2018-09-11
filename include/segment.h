@@ -5,9 +5,9 @@
 using namespace std;
 
 class Segment {
+  unsigned int type;
 public:
-  string layer;
-  Segment(string layer);
+  Segment(unsigned int type);
 };
 
 #endif // SEGMENT_H
