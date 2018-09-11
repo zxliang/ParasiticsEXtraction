@@ -9,6 +9,7 @@
 ```
    make
    ./parser \*.def \*.spef \*output_file_name
+   python SVM.py nets.csv
 ```
 
 ## Change Log:

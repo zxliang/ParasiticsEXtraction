@@ -2,6 +2,8 @@
 #define PARSER_H
 #include <iostream>
 #include <fstream>
+#include <vector>
+#include "segment.h"
 
 using namespace std;
 
@@ -12,11 +14,15 @@ class parser {
   ifstream spefHandler;
   string outputFileName;
   ofstream outputHandler;
+  vector<segment> nets;
 public:
   parser();
   parser(int argc, char* argv[]);
   ~parser();
+
   int getFileHandler(int argc, char* argv[]);
+
+
   void displayFileInfo();
 };
 
