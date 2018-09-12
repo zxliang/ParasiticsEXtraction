@@ -3,6 +3,8 @@
 #include <iostream>
 #include <fstream>
 #include <vector>
+#include <sstream>
+#include <algorithm>
 #include "segment.h"
 
 using namespace std;
@@ -15,7 +17,6 @@ class Parser {
   ifstream spef_handler;
   string output_filename;
   ofstream output_handler;
-  vector<Segment> nets;
 public:
   Parser();
   Parser(int argc, char* argv[]);
@@ -23,7 +24,7 @@ public:
 
   int getFileHandler(int argc, char* argv[]);
   int readDefFile();
-  void matchNetLine(string net_line);
+  void matchNetLine(string net_line, vector<Segment>& nets);
 
   void displayFileInfo();
 };

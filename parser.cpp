@@ -102,12 +102,13 @@ int Parser::readDefFile() {
         cout << net_name << " " << counter << endl;
 
       // read valid lines
-      while (net_line.find(";")!=string::npos) {
+      do {
+        matchNetLine(net_line, nets);
         getline(def_handler, net_line), counter++;
-//        cout << " " << net_line << endl;
+      } while (net_line.find(";")==string::npos);
 
-        matchNetLine(net_line);
-      }
+        
+      
     }
   }
 
@@ -115,14 +116,33 @@ int Parser::readDefFile() {
 }
 
 // extracting net segment info based on # of spaces inline
-// ??? better way?
-void Parser::matchNetLine(string net_line) {
-  int num_spaces=0;
-  for (int i=0; i<int(net_line.length()); i++)
-    if (isspace(net_line[i])) num_spaces++;
-                
-  Segment seg((unsigned int)num_spaces);
-  return;
+// better way with regex ??? 
+void Parser::matchNetLine(string net_line, vector<Segment>& nets) {
+  unsigned int num_spaces = 0;
+  for (char c : net_line)
+    if (isspace(c)) num_spaces++;
+
+  net_line.erase(remove(net_line.begin(), net_line.end(), '+'), net_line.end());
+  net_line.erase(remove(net_line.begin(), net_line.end(), ')'), net_line.end());
+  net_line.erase(remove(net_line.begin(), net_line.end(), '('), net_line.end());
+
+  string head(""), layer(""), via("");
+  unsigned int X1(0), Y1(0), X2(0), Y2(0);
+  stringstream net_info(net_line);
+  if (num_spaces==10)
+    net_info >> head >> layer >> X1 >> Y1 >> via;
+  else if (num_spaces==13)
+    net_info >> head >> layer >> X1 >> Y1 >> X2 >> Y2;
+  else if (num_spaces==14)
+    net_info >> head >> layer >> X1 >> Y1 >> X2 >> Y2 >> via;
+  unsigned int box[4] = {X1, Y1, X2, Y2};
+
+//  cout << num_spaces << " | " << head << " | " << layer << " | " << via << " | ";
+//  cout << X1 << " | " << Y1 << " | " << X2 << " | " << Y2 << endl;
+
+  // watch for segment fault here
+  Segment seg(layer, box, via);
+  nets.push_back(seg);
 }
 
 // Display names of input/output files 

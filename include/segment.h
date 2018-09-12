@@ -5,9 +5,11 @@
 using namespace std;
 
 class Segment {
-  unsigned int type;
+  string layer;
+  string via;
+  unsigned int center_coordinates[4];
 public:
-  Segment(unsigned int type);
+  Segment(string _layer, unsigned int _center_coordinates[4], string _via="");
 };
 
 #endif // SEGMENT_H
