@@ -3,6 +3,7 @@
 #include <iostream>
 #include <fstream>
 #include <vector>
+#include <unordered_map>
 #include <sstream>
 #include <algorithm>
 #include "segment.h"
@@ -17,6 +18,8 @@ class Parser {
   ifstream spef_handler;
   string output_filename;
   ofstream output_handler;
+
+  unordered_map<string, vector<Segment>> nets_table;
 public:
   Parser();
   Parser(int argc, char* argv[]);
@@ -25,6 +28,7 @@ public:
   int getFileHandler(int argc, char* argv[]);
   int readDefFile();
   void matchNetLine(string net_line, vector<Segment>& nets);
+  int readSpefFile();
 
   void displayFileInfo();
 };

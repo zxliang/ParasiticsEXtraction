@@ -3,13 +3,20 @@
 #include <string>
 
 using namespace std;
+using SegmentType = unsigned int;
+using CoordinateType = int;
 
 class Segment {
+  SegmentType type;
+  unsigned int length, width;
   string layer;
   string via;
-  unsigned int center_coordinates[4];
 public:
-  Segment(string _layer, unsigned int _center_coordinates[4], string _via="");
+  double R, C, CC;
+  CoordinateType coordinates[4];
+  CoordinateType total_coordinates[4];
+
+  Segment(string _layer, CoordinateType _coordinates[4], string _via="");
 };
 
 #endif // SEGMENT_H

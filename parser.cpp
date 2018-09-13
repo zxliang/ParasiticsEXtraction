@@ -80,6 +80,9 @@ int Parser::readDefFile() {
     return 0;  
   }
 
+  // initialize the container of nets
+  nets_table = unordered_map<string, vector<Segment>> ();
+
   string line;
   bool isInNETS = false;
   unsigned int counter = 0; // line counter for debugging
@@ -106,9 +109,31 @@ int Parser::readDefFile() {
         matchNetLine(net_line, nets);
         getline(def_handler, net_line), counter++;
       } while (net_line.find(";")==string::npos);
-
-        
+     
+      // store this set of nets
       
+      if (!nets.empty()) {
+
+        // what is the point of the follow section?
+        // this forces total_coordinates and coordinates to be public
+	CoordinateType total_box[4];
+        total_box[0] = nets[0].coordinates[0];
+        total_box[1] = nets[0].coordinates[1];
+        total_box[2] = nets[0].coordinates[2];
+        total_box[3] = nets[0].coordinates[3];
+        for (int i=1; i<nets.size(); i++) 
+	  for (int j=0; j<4; j++)
+            if(nets[i].coordinates[j]<total_box[j]) 
+              total_box[j] = nets[i].coordinates[j];
+        
+        nets[0].total_coordinates[0] = total_box[0];
+        nets[0].total_coordinates[1] = total_box[1];
+        nets[0].total_coordinates[2] = total_box[2];
+        nets[0].total_coordinates[3] = total_box[3];
+
+        nets_table[net_name] = nets;        
+      }
+
     }
   }
 
@@ -127,7 +152,7 @@ void Parser::matchNetLine(string net_line, vector<Segment>& nets) {
   net_line.erase(remove(net_line.begin(), net_line.end(), '('), net_line.end());
 
   string head(""), layer(""), via("");
-  unsigned int X1(0), Y1(0), X2(0), Y2(0);
+  CoordinateType X1(0), Y1(0), X2(0), Y2(0);
   stringstream net_info(net_line);
   if (num_spaces==10)
     net_info >> head >> layer >> X1 >> Y1 >> via;
@@ -135,7 +160,7 @@ void Parser::matchNetLine(string net_line, vector<Segment>& nets) {
     net_info >> head >> layer >> X1 >> Y1 >> X2 >> Y2;
   else if (num_spaces==14)
     net_info >> head >> layer >> X1 >> Y1 >> X2 >> Y2 >> via;
-  unsigned int box[4] = {X1, Y1, X2, Y2};
+  CoordinateType box[4] = {X1, Y1, X2, Y2};
 
 //  cout << num_spaces << " | " << head << " | " << layer << " | " << via << " | ";
 //  cout << X1 << " | " << Y1 << " | " << X2 << " | " << Y2 << endl;
@@ -143,6 +168,97 @@ void Parser::matchNetLine(string net_line, vector<Segment>& nets) {
   // watch for segment fault here
   Segment seg(layer, box, via);
   nets.push_back(seg);
+}
+
+
+int Parser::readSpefFile() {
+  if (!is_handler_ready) {
+    cout << "File handlers not ready. Quit reading. " << endl;
+    return 0;  
+  }
+
+  unordered_map<unsigned int, string> net_ref_table;
+
+  string line;
+  bool isInNAME_MAP = false;
+
+  unsigned int net_ref_id;
+  string net_name;
+
+  double C = 0, PIN_CAP = 0, TOTAL_PIN_CAP = 0;
+  double COUP_CAP = 0, TOTAL_COUP_CAP = 0;
+  unsigned int PIN_CAP_COUNTER = 0;
+
+  double R = 0, TOTAL_R = 0;
+
+  while (getline(spef_handler, line)) {
+
+    if (line.find("NANE_MAP") != string::npos) isInNAME_MAP = true;
+    if (line.find("PORTS") != string::npos) isInNAME_MAP = false;
+
+    if (isInNAME_MAP && line.size()>1) {
+      stringstream net_info(line);
+      net_info >> net_ref_id >> net_name;
+      net_ref_table[net_ref_id] = net_name;
+    }
+
+    if (line.find("D_NET") != string::npos) {
+      stringstream net_info(line);
+      net_info >> net_name >> net_ref_id >> C;
+      PIN_CAP_COUNTER = 0;
+    }
+
+    if (line.find("CAP") != string::npos) {
+      PIN_CAP_COUNTER -= 4;
+      getline(spef_handler, line);
+
+      while (PIN_CAP_COUNTER>0 && line.size()>1) {
+        stringstream net_info(line);
+        net_info >> PIN_CAP >> net_name >> PIN_CAP;
+        TOTAL_PIN_CAP += PIN_CAP;
+        getline(spef_handler, line);
+        PIN_CAP_COUNTER--;
+      }
+
+      while (line.length()>1) {
+        int num_spaces = 0;
+        for (auto c : line)
+          if (isspace(c)) num_spaces++;
+
+        if (num_spaces>=3) {
+          stringstream net_info(line);
+          net_info >> PIN_CAP >> net_name >> net_name >> COUP_CAP;
+          TOTAL_COUP_CAP += COUP_CAP;
+        }
+        getline(spef_handler, line);
+      }
+
+      if (nets_table.find(net_ref_table[net_ref_id]) != nets_table.end()) {
+        // following C calculation different from Kunal's 
+        // should be C - TOTAL_COUP_CAP - TOTAL_PIN_CAP ???
+        nets_table[net_ref_table[net_ref_id]][0].C = C - TOTAL_COUP_CAP;
+        nets_table[net_ref_table[net_ref_id]][0].CC = TOTAL_COUP_CAP;        
+      }
+    }
+
+    if (line.find("RES") != string::npos) {
+      getline(spef_handler, line);
+      while (line.length()>1) {
+        stringstream net_info(line);
+        net_info >> R >> net_name >> net_name >> R;
+        TOTAL_R += R;
+        getline(spef_handler, line);
+      }
+
+//      if (nets_table.find(net_ref_table[net_ref_id]) != nets_table.end())
+//        nets_table[net_ref_table[net_ref_id]][0].R = TOTAL_R;
+    }
+
+    PIN_CAP_COUNTER++;
+    
+  }
+
+  return 1;
 }
 
 // Display names of input/output files 
